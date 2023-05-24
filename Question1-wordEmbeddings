@@ -1,0 +1,88 @@
+# importing all necessary modules
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+import warnings
+warnings.filterwarnings(action = 'ignore')
+import gensim
+from gensim.models import Word2Vec  
+#  Reads ‘alice.txt’ file
+sample = [ "to make a low continuous humming sound like that of a bee",
+            "buzz",
+          "to give up to the control or influence of another person or agent",
+          "abandon",
+          "free from imperfection",
+          "absolute",
+           "reasonably close to",
+          "about",
+          "generally pleasing",
+          "beautiful",
+          "having or showing mental or moral strength to face danger",
+          "brave",
+          "complete absence of wind or presence of wind having a speed no greater than one mile per hour",
+          "calm",
+          "having or showing general efficiency and ability",
+          "capable",
+          "marked by wary caution",
+          "careful",
+          "hot",
+            "cold",
+            "warm",
+            "brave",
+            "strength",
+            "delicate",
+            "pleasant",
+         "warm"]
+
+stop_words = set(stopwords.words("english"))
+words = word_tokenize(sample[0])
+filtered = [w for w in words if not w in stop_words]
+  
+# Replaces escape character with space
+# f = s.replace("\n", " ")
+f=sample
+data = []  
+# iterate through each sentence in the file
+
+for j in range(0,len(sample)):
+    
+    for i in sent_tokenize(f[j]):
+       temp = []    
+       # tokenize the sentence into words
+       for j in word_tokenize(i):
+          temp.append(j.lower())  
+       data.append(temp)  
+
+# Create CBOW model
+model1 = gensim.models.Word2Vec(data, min_count = 1, vector_size=100, window = 5)  
+print(model1)
+
+print("\n")
+
+# Print results
+print("Cosine similarity between 'brave' " + "and 'cold' - CBOW : ", model1.wv.most_similar('brave', 'cold'))    
+# print("Cosine similarity between 'alice' " + "and 'machines' - CBOW : ", model1.similarity('alice', 'machines'))  
+# Create Skip Gram model
+model2 = gensim.models.Word2Vec(data, min_count = 1, vector_size = 100, window =5, sg = 1)
+print("\n")
+# Print results
+print("Cosine similarity between 'hot' " + "and 'cold' - Skip Gram : ", model2.wv.most_similar('hot', 'cold'))      
+# print("Cosine similarity between 'alice' " + "and 'machines' - Skip Gram : ", model2.similarity('alice', 'machines'))
+
+import matplotlib.pyplot as plt
+
+x = ["to make a low continuous humming sound like that of a bee",
+     "to give up to the control or influence of another person or agent",
+     "free from imperfection",
+     "reasonably close to",
+     "generally pleasing",
+     "having or showing mental or moral strength to face danger",
+     "complete absence of wind or presence of wind having a speed no greater than one mile per hour",
+     "having or showing general efficiency and ability",
+     "marked by wary caution"
+     
+     
+     ]
+y = ["buzz", "abandon","absolute","about","beautiful", "brave", "calm", "capable", "careful"]
+
+plt.scatter(x, y)
+plt.show()
