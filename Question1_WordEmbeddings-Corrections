@@ -1,0 +1,211 @@
+import pandas as pd
+#Reading CSV file
+spreadsheet = pd.read_csv('C:/Users/trigo/Downloads/sample_text.csv', on_bad_lines='skip')
+spreadsheet.head()
+#spreadsheet['prefix description']
+from gensim.models import Word2Vec, KeyedVectors
+#Already Trained Model
+modelT = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin.gz',binary=True,limit=100000)
+
+# Create a Word2Vec model
+model = Word2Vec(sentences=spreadsheet['prefix description'], vector_size=100, window=5, min_count=1, workers=4)
+
+#vec = model['man']
+#print(vec)
+
+print(modelT.most_similar('Immunology'))
+
+#print(modelT.similarity(['Immunology', '(Local Lab)', '(DILI)', 'Toxoplasma IgM/IgG'], 'Immunology'))
+
+# Line 319 in sample_text - Immunology (Local Lab) (DILI) Toxop# Train the model on your own sentences
+sentences = [
+             ['Events'],
+             ['Events', 'Date', 'Ended', 'or', 'Resulted', 'in', 'Death'],
+             ['Chemistry'],
+             ['Chemistry', '(Local Lab)', '(DILI)', 'If', 'an', 'abnormal', 'laboratory', 'value', 'resulted', 'in', 'clinical', 'sequelae'],
+             ['Coagulation'],
+             ['Coagulation', '(Local Lab)', '(DILI)',  'If', 'an', 'abnormal', 'laboratory', 'value', 'resulted', 'in', 'clinical', 'sequelae'],
+             ['Concomitant'],
+             ['Concomitant', 'Medications', 'Medication'],
+             ['Protocol'],
+             ['Other', 'Protocol', 'Required', 'Therapy', '(Dexamethasone)', 'Medication'],
+             ['Consents'],
+             ['Additional', 'Consents', 'Withdrawals', 'of', 'Consent', 'Consent'],
+             ['Cerebrospinal'],
+             ['Cerebrospinal', 'Fluid', '(Local Lab)', '(Textbook)', 'If', 'an', 'abnormal', 'laboratory', 'value', 'resulted', 'in', 'clinical', 'sequelae'],
+             ['Cycle'],
+             ['Was', 'Cycle', 'Interrupted?', 'Was', 'cycle', 'interrupted', 'for', 'more', 'than', '7', 'days', 'or', 'treatment', 'duration', 'in', 'this', 'cycle', 'less', 'than', '2', 'weeks'],
+             ['Demographics'],
+             ['Demographics', 'Ethnicity'],
+             ['Disease'],
+             ['Disease', 'History', '(ALL)', 'B-precursor', 'ALL'],
+             ['Eligibility'],
+             ['Eligibility', 'Criteria', 'Eligibility', 'Criteria'],
+             ['Meets'],
+             ['Meets', 'Eligibility', 'Criteria', 'Did', 'subject', 'meet', 'all', 'eligibility', 'criteria'],
+             ['Subject'],
+             ['Subject', 'Enrollment', 'Date', 'Informed', 'Consent', 'Signed'],
+             ['Was'],
+             ['Was', 'Subject', 'Enrolled', 'Was', 'the', 'subject', 'enrolled', 'in', 'the', 'study'],
+             ['End'],
+             ['End', 'of', 'Study', 'End', 'of', 'Subcategory', '(Derived Hidden)'],
+             ['Frequency'],
+             ['Frequency', 'of', 'Bag', 'Changes', 'Start', 'Date'],
+             ['Hematology'],
+             ['Hematology', 'Local', 'Lab', 'DILI',  'If', 'an', 'abnormal', 'laboratory', 'value', 'resulted', 'in', 'clinical', 'sequelae'],
+             ['Hospitalisations'],
+             ['Hospitalizations', 'Discharge', 'Date'],
+             ['Anti-Cancer'],
+             ['Prior', 'Anti-Cancer', 'Therapies', 'for', 'Current', 'Malignancy', 'For', 'dosage', 'changes'],
+             ['LTFU'],
+             ['LTFU', 'Anti-Cancer', 'Therapies', 'for', 'Current', 'Malignancy', 'For', 'dosage', 'changes'],
+             ['Radiotherapy'],
+             ['Prior', 'Radiotherapy', 'for', 'Current', 'Malignancy', 'Body', 'Site'],
+             ['History'],
+             ['Medical', 'History', 'Category'],
+             ['Immunology'],
+             ['Immunology', '(Local Lab)', '(DILI)', 'Toxoplasma', 'IgM/IgG'], 
+             ['Hepatic'],
+             ['Hepatic', 'Event', 'Labs', 'Date', 'Collected'],
+             ['Pump'],
+             ['Which', 'Infusion', 'Pump', 'was', 'used', 'Pump', 'brand', 'and', 'model', 'used', 'in', 'Inpatient', 'setting', '(Derived)'],
+             ['Product'],
+             ['Investigational', 'Product', 'Administration', 'Investigational', 'Product', 'Name', '(Derived Hidden)'],
+             ['Biospy'],
+             ['Liver', 'Biopsy', 'Results', 'Date', 'Performed'],
+             ['History'],
+             ['Hepatic', 'History', 'Prior', 'to', 'enrollment'],
+             ['Imaging'],
+             ['Liver', 'Imaging', 'Results', 'Date', 'Performed'],
+             ['Medication'],
+             ['Medication', 'or', 'Dosing', 'errors', 'Where', 'did', 'the', 'error', 'occur'],
+             ['MUGA'],
+             ['MUGA', 'Scan', 'or', 'Echocardiogram', 'Date', 'Performed'],
+             ['Complaint'],
+             ['Product', 'Complaint', 'Product'],
+             ['ECOG'],
+             ['ECOG', 'Performance', 'Status', 'Date', 'Performed'],
+             ['Measurement'],
+             ['Physical', 'Measurement', 'Date', 'of', 'Examination'],
+             ['Status'],
+             ['Reproductive', 'Status', 'and', 'Pregnancy', 'Test', 'Local Lab', 'Reproductive', 'Status'],
+             ['Procedures'],
+             ['Procedures', '(Previous HSCT)', 'Date', 'Performed'],
+             ['Primary'],
+             ['Primary', 'Form', 'Subject'],
+             ['Screen'],
+             ['Screen', 'Failure', 'Date', 'Informed', 'Consent', 'Signed'],
+             ['Safety'],
+             ['Safety', 'Report', 'Form', 'Safety', 'Case', 'Number', '(Derived)'],
+             ['Survival'],
+             ['Survival', 'Status', 'Survival', 'Status', 'Subcategory', '(Derived Hidden)'],
+             ['Substance'],
+             ['Substance', 'Use', '(DILI)', 'Category'],
+             ['Time'],
+             ['Time', 'of', 'IP', 'Infusion', 'Bag', 'Changes', 'Associated', 'with', 'PK', 'sampling', 'Start', 'Date', 'of', 'Bag', 'Change'],
+             ['Toxicology'],
+             ['Toxicology', '(Local Lab)', '(DILI)', 'Date', 'Collected'],
+             ['Treatment'],
+             ['Treatment', 'Response', 'Date', 'Treatment', 'Response', 'was', 'assessed'],
+             ['Urianlysis'],
+             ['Urinalysis', '(Local Lab)', '(Textbook)', 'Date', 'Collected'],
+             ['Visit'],
+             ['Visit', 'Date', 'Visit', 'Date'],
+             ['Vital'],
+             ['Vital', 'Signs', 'Date', 'Performed'],
+             ['Investigator'],
+             ['Investigator', 'Signature', '(Final Analysis)', 'Milestone', 'Cut-off', '(Derived)'],
+             ['Nullification'],
+             ['Nullification', 'Details', 'for', 'Inactivated', 'Events', 'eSAE', 'Immediate', 'Transmission', 'Flag', '(Hidden)']
+            ]
+model = Word2Vec(sentences=sentences, vector_size=100, window=5, min_count=1, workers=4)
+
+# Find similar words to a given word
+similar_words = model.wv.most_similar('Disease')
+print('similar words to "disease in our corpus"',similar_words)
+
+similarity = model.wv.similarity('Performed', 'Status')
+print('\nCosine similarity between Performed and Status: ',similarity)
+
+similarity = model.wv.similarity('Disease', 'Disease')
+print('\nCosine similarity between Disease and Disease: ',similarity)
+      
+# Line 319 in sample_text - Immunology (Local Lab) (DILI) Toxoplasma IgM/IgG      
+
+sen1 = ['Immunology', '(Local Lab)', '(DILI)', 'Toxoplasma', 'IgM/IgG']
+
+similarity = model.wv.similarity(sen1 ,'Immunology')
+print('\nImmunology (Local Lab) (DILI) Toxoplasma IgM/IgG and Immunology: ' )
+
+# model = Word2Vec(['UT'], vector_size=100, window=5, min_count=1, workers=4)
+# similarity = model.wv.most_similar('UT')
+
+#print(similarity)
+
+import numpy as np
+
+arr = np.array(similarity)
+
+# Get the mean of 1-D array
+arr1 = np.mean(arr)
+
+print("\nThe phrase 1 and immunology cosine similarity: ",arr1)
+
+# Access the word vectors
+vector = model.wv['Disease']
+print(vector)
+
+
+
+arr = np.array(vector)
+
+# Get the mean of 1-D array
+arr1 = np.mean(arr)
+print("Mean of the array vector is: ", arr1)
+
+#vec = modelT['man']
+#print(vec)
+
+#similar_words = model.wv.most_similar()
+
+# Get the ordered list of words in the vocabulary
+#All the possible vectors (words is all the Keys in the model)
+words = list(model.wv.index_to_key)
+print('all words vectors list', words, len(words))
+print('Printing 1st Vector of word in words list: {0}'.format(model.wv[words[1]]))
+
+import math
+
+# Finding cosine similarity manually using vector product formula
+def cosine_similarity(v1,v2):
+    "compute cosine similarity of v1 to v2: (v1 dot v2)/{||v1||*||v2||)"
+    sumxx, sumxy, sumyy = 0, 0, 0
+    for i in range(len(v1)):
+        x = v1[i]; y = v2[i]
+        sumxx += x*x
+        sumyy += y*y
+        sumxy += x*y
+    return sumxy/math.sqrt(sumxx*sumyy)
+
+
+v1,v2 = model.wv[words[1]], model.wv[words[2]]
+
+print("\n\n")
+print('word 1 vector: {0}'.format(words[1]), v1, 'word 2 vector: {0}'.format(words[2]), v2, 'cosine_similarity',cosine_similarity(v1,v2))
+
+
+# import library
+#import numpy as np
+
+#sizeA = len(words)
+#_sum = np.array([[0 for col in range(100)] for row in range(5)] )
+#for i in range(0,sizeA):
+#    t = np.array(model.wv[words[i]])
+#    _sum = _sum + t
+#avg = _sum/sizeA
+#print("Average of NumPy arrays:\n",
+#      avg)
+
+
+#print(len(avg), len(v2))
+#print('Avg vector: {0}'.format(words[1]), v1, 'word 2 vector: {0}'.format(words[2]), v2, 'cosine_similarity',cosine_similarity(avg,v2))
