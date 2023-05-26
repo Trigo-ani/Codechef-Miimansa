@@ -1,0 +1,89 @@
+# List of imports
+import math
+from num2words import num2words
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.stem import WordNetLemmatizer
+import gensim
+from gensim.models import Word2Vec
+import numpy as np
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+phraseArr = [
+             "Events Type of Event 2 better shop shoppings",
+             "Chemistry (Local Lab) (DILI) If an abnormal laboratory value resulted in clinical sequelae",
+             "Coagulation (Local Lab) (DILI)  If an abnormal laboratory value resulted in clinical sequelae"
+             ]
+print('\nPhrase 1: \n', phraseArr[0]) # phrase 1
+
+print("\nAll Phrases List:\n", phraseArr) # list of phrases
+data = []  
+stop_words = set(stopwords.words("english"))
+lemmatizer = WordNetLemmatizer()
+ps = PorterStemmer()
+
+recordedSimilarity = 0.0
+index = 0
+wordToCheck = 'events'
+# iterate through each sentence in the file
+for j in range(0,len(phraseArr)):
+    print(phraseArr[j])
+    s = sent_tokenize(phraseArr[j])
+    for i in s:
+        temp = [] 
+       # tokenize the sentence into word
+        w =word_tokenize(i)
+        for k in w:
+            k = k.lower() # 1-To lower case
+            k = k.replace("(", "").replace(")", "") # 2-Bracket removal
+            if k.isnumeric(): # 3-Convert Number to Word
+                k = num2words(k)
+            k = lemmatizer.lemmatize(k, pos ="a") # 4 -lemmatize
+            ps.stem(k) # 5 - Apply Stemming (Stemming not working)
+            
+            if k not in stop_words and k!="": # Final list generation, condition of 6-stop words removal and append 7-TFIDF
+                temp.append(k)
+        data.append(temp) 
+        
+        model = Word2Vec(sentences=data, vector_size=100, window=5, min_count=1, workers=4)
+        print(model)
+        #print("A:",temp)
+        #print(list(model.wv.index_to_key))
+        
+        t = model.wv.similarity(temp , 'events')
+        print('AAAAAA: Phrase {0} and similarity = {1}'.format(temp,t))
+        arr = np.array(t)
+
+        # Get the mean of 1-D array
+        arr1 = np.mean(arr)
+        
+        print("\n",arr1)
+        
+        if(arr1 > recordedSimilarity):
+            index=j
+            recordedSimilarity = arr1
+        
+    
+print(data)
+print("phraseArr at index {0}: {1} and similarity = {2}".format(index, phraseArr[index], recordedSimilarity))
+
+model = Word2Vec(sentences=data, vector_size=100, window=5, min_count=1, workers=4)
+try:
+    # Find similar words to a given word
+    similar_words = model.wv.most_similar('events') # must be lower case
+    print('similar words to "disease in our corpus"',similar_words)
+    print('CLOSEST WORD:"',similar_words[0])
+except:
+    print("No such word in corpus")
+    
+    #EXAMPLE - FOR KEYS IN THE WHOLE CORPUS
+
+words = list(model.wv.index_to_key)
+print('all words vectors list', words, len(words))
+print('Printing Second Vector of word - {0} - in words list: {1}'.format(words[1], model.wv[words[1]]))
+
+vector = model.wv['event']
+arr = np.array(vector)
+# Get the mean of 1-D array
+arr1 = np.mean(arr)
+print("Mean of the array vector is: ", arr1)
