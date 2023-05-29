@@ -1,0 +1,175 @@
+# List of imports
+import math
+from num2words import num2words
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.stem import WordNetLemmatizer
+import gensim
+from gensim.models import Word2Vec
+import numpy as np
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+def numberToWordsFromPhrase(phrase):
+    numberToWordsPhraseArr = []
+    tokens = tokenizePhrase(phrase)
+    for phraseWord in tokens:
+        if phraseWord.isnumeric():
+            numberWord = num2words(phraseWord)
+            numberToWordsPhraseArr.append(numberWord) # Add converted number
+        else:
+            numberToWordsPhraseArr.append(phraseWord) # Add the word as it is
+    
+    numberedPhrase = createPhraseFromTokens(numberToWordsPhraseArr)
+    return numberedPhrase
+def remove_parenthesis(string):
+    a = tokenizePhrase(string)
+    b = []
+    for tokens in a:
+        s = tokens.replace("(", "").replace(")", "")
+        #print("removing panthesis", s)
+        if tokens=="":
+            continue
+        b.append(s)
+    b = createPhraseFromTokens(b)
+    return b
+def createPhraseFromTokens(phraseArr):
+    s = ""
+    for i in range(0, len(phraseArr)):
+        if i == 0:
+            s = s + phraseArr[i]
+        else:
+            s = s + " " + phraseArr[i]
+    createdPhraseFromTokens = s
+
+    return createdPhraseFromTokens
+def removeStopWords(phrase):
+    stop_words = set(stopwords.words("english"))
+
+    # print(stop_words)
+
+    tokens = tokenizePhrase(phrase)
+
+    removedStopWordsPhrase = []
+
+    for w in tokens:
+        if w not in stop_words:
+            removedStopWordsPhrase.append(w)
+
+    # print(removedStopWordsPhrase)
+    # filtered = [w for w in words if not w in stop_words]
+    
+    removedStopWordsPhrase = createPhraseFromTokens(removedStopWordsPhrase)
+
+    return removedStopWordsPhrase
+def applyLemmatization(phrase):
+    lemmatizer = WordNetLemmatizer()
+
+    lemmatizedPhraseArr = []
+    tokens = tokenizePhrase(phrase)
+    for i in range(0, len(tokens)):
+        lemmatizedWord = lemmatizer.lemmatize(tokens[i], pos ="a")
+        #print(lemmatizedWord)
+        lemmatizedPhraseArr.append(lemmatizedWord)
+        
+    #print(lemmatizedPhraseArr)
+    
+    lemmatizedPhrase = createPhraseFromTokens(lemmatizedPhraseArr)
+    return lemmatizedPhrase
+def lowerCaseString(b):
+    b = b.lower()
+    return b
+def applyStemming(phrase):
+    ps = PorterStemmer()
+    tokens = tokenizePhrase(phrase)
+
+    stemmedPhrase = []
+
+    for w in tokens:
+        ps.stem(w)
+        stemmedPhrase.append(w)
+    
+    stemmedPhrase = createPhraseFromTokens(stemmedPhrase)
+
+    return stemmedPhrase
+def tokenizePhrase(phrase):
+    #for i in sent_tokenize(phrase):
+        #temp = []    
+        # tokenize the sentence into words
+        #for j in word_tokenize(i):
+            #temp.append(j.lower())
+        #data.append(temp)
+        
+    #print(phrase)
+    tokenizedPhraseWordArr = word_tokenize(phrase)
+    #print(tokenizedPhraseWordArr)
+    return tokenizedPhraseWordArr
+def cleanText(phrase):
+    # 1- Conveting to lower case
+    phrase = phrase.lower()
+    #print("\nAfter converting to lower case:\n", phrase)
+
+    # 2 - Removing parenthesis
+    phrase = remove_parenthesis(phrase)
+    #print("\nAfter Removing Parenthesis:\n", phrase)
+
+    # 3 - Converting number to words
+    phrase = numberToWordsFromPhrase(phrase)
+    #print("\nAfter Converting Number to words:\n", phrase)
+
+    # 4 - After Applying lemmatization
+    phrase = removeStopWords(phrase)
+    #print("\nAfter Removing stopWords:\n", phrase)
+
+    # 5 - After Applying lemmatization
+    phrase = applyLemmatization(phrase)
+    #print("\nAfter Applying Lemmatization:\n", phrase)
+
+    # 6 - After Applying Stemming
+    phrase = applyStemming(phrase)
+    #print("\nAfter Applying Stemming:\n", phrase)
+    
+    cTPhrase = phrase # phrase is a sentence
+    return cTPhrase
+phraseArr = [
+             "Events Type of Event 2 better shop shoppings ()",
+             "Chemistry (Local Lab) (DILI) If an abnormal laboratory value resulted in clinical sequelae",
+             "Coagulation (Local Lab) (DILI)  If an abnormal laboratory value resulted in clinical sequelae"
+             ]
+
+given_word = "events"
+recordedSimilarity = 0.0
+index = 0
+
+size = len(phraseArr)
+for i in range(0, size):
+    
+    # 1 - 6 Cleaning Text
+    phraseArr[i]= cleanText(phraseArr[i])
+
+    # 7 - Create Word2Vec Model
+
+    # Create a CountVectorizer instance
+    vectorizer = CountVectorizer()
+
+    # Fit the vectorizer on the phrase
+    vectorizer.fit_transform([phraseArr[i]])
+
+    # Get the one-hot encoding of the phrase
+    one_hot_encoding = vectorizer.transform([phraseArr[i]])
+
+    # 8 - Check Similarity Between phrase and given word
+   
+    # Get the one-hot encoding of the given word
+    given_word_encoding = vectorizer.transform([given_word])
+
+    # Calculate the cosine similarity between the phrase and the given word
+    similarity = cosine_similarity(one_hot_encoding, given_word_encoding)
+
+    if similarity[0][0] > recordedSimilarity:
+        index = i
+        recordedSimilarity = similarity[0][0]
+        
+print("CLOSEST PHRASE:", phraseArr[index], "SIMILARITY:", recordedSimilarity)
